@@ -58,11 +58,14 @@ static const int MAX_CONFIG_FILE_LENGTH_BYTES = 1024*1024*10;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TYPES
 
+
+
 typedef enum {
 	DEMO_MODE_NONE = 0,
 	DEMO_MODE_FADE = 1,
 	DEMO_MODE_IDENTIFY = 2,
-	DEMO_MODE_BLACK = 3
+	DEMO_MODE_BLACK = 3,
+    DEMO_MODE_POWER = 4
 } demo_mode_t;
 
 typedef struct {
@@ -137,6 +140,7 @@ const char* demo_mode_to_string(demo_mode_t mode) {
 		case DEMO_MODE_FADE: return "fade";
 		case DEMO_MODE_IDENTIFY: return "id";
 		case DEMO_MODE_BLACK: return "black";
+		case DEMO_MODE_POWER: return "power";        
 		default: return "<invalid demo_mode>";
 	}
 }
@@ -150,7 +154,9 @@ demo_mode_t demo_mode_from_string(const char* str) {
 		return DEMO_MODE_FADE;
 	} else if (strcasecmp(str, "black") == 0) {
 		return DEMO_MODE_BLACK;
-	} else {
+	} else if (strcasecmp(str, "power") == 0) {
+    	return DEMO_MODE_POWER;
+	} else {        
 		return -1;
 	}
 }
@@ -1712,6 +1718,11 @@ void* demo_thread(void* unused_data)
 						case DEMO_MODE_BLACK: {
 							buffer[data_index] = buffer[data_index+1] = buffer[data_index+2] = 0;
 						} break;
+                        
+						case DEMO_MODE_POWER: {
+    						buffer[data_index] = buffer[data_index+1] = buffer[data_index+2] = 0xff;
+						} break;
+                        
 					}
 				}
 			}
