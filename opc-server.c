@@ -1255,6 +1255,10 @@ void set_next_frame_data(
 
 /**
 * Rotate the buffers, dropping the previous frame and loading in the new one
+*  
+* if (has_current) previous <-> current;
+* if (has_next) current <-> next    
+* 
 */
 void rotate_frames(uint8_t lock_frame_data) {
 	if (lock_frame_data) pthread_mutex_lock(&g_runtime_state.mutex);
@@ -1338,51 +1342,73 @@ void* render_thread(void* unused_data)
 			usleep(1e6 /* 1s */);
 			continue;
 		}
+        
+        bool interpolation_enabled = g_server_config.interpolation_enabled;
+        
+        // If interpolation not enabled, then we only care about the current frame and want to fully display it immediately
+                
+        if (!interpolation_enabled) {
+            
+            if (g_runtime_state.has_next_frame) {        
+                
+                // Make the next frame the current frame
+                rotate_frames(FALSE);
+            }
+            
+            if (!g_runtime_state.has_current_frame) {
+                pthread_mutex_unlock(&g_runtime_state.mutex);
+                usleep(10e3 /* 10ms */);
+                continue;
+            }
+            
+        } else {
+            
+            // Skip frames if there isn't enough data
+            if (!g_runtime_state.has_prev_frame || !g_runtime_state.has_current_frame) {
+                pthread_mutex_unlock(&g_runtime_state.mutex);
+                usleep(10e3 /* 10ms */);
+                continue;
+            }
+            
+            // Calculate the time delta and current percentage (as a 16-bit value)
+            gettimeofday(&now_tv, NULL);
+            timersub(&now_tv, &g_runtime_state.next_frame_tv, &frame_progress_tv);
 
-		// Skip frames if there isn't enough data
-		if (!g_runtime_state.has_prev_frame || !g_runtime_state.has_current_frame) {
-			pthread_mutex_unlock(&g_runtime_state.mutex);
-			usleep(10e3 /* 10ms */);
-			continue;
-		}
+            // Calculate current frame and previous frame time
+            uint64_t frame_progress_us = (uint64_t) (frame_progress_tv.tv_sec*1e6 + frame_progress_tv.tv_usec);
+            uint64_t last_frame_time_us = (uint64_t) (g_runtime_state.prev_current_delta_tv.tv_sec*1e6 + g_runtime_state.prev_current_delta_tv.tv_usec);
 
-		// Calculate the time delta and current percentage (as a 16-bit value)
-		gettimeofday(&now_tv, NULL);
-		timersub(&now_tv, &g_runtime_state.next_frame_tv, &frame_progress_tv);
+            // Check for current frame exhaustion
+            if (frame_progress_us > last_frame_time_us) {
+                uint8_t has_next_frame = g_runtime_state.has_next_frame;
+                pthread_mutex_unlock(&g_runtime_state.mutex);
 
-		// Calculate current frame and previous frame time
-		uint64_t frame_progress_us = (uint64_t) (frame_progress_tv.tv_sec*1e6 + frame_progress_tv.tv_usec);
-		uint64_t last_frame_time_us = (uint64_t) (g_runtime_state.prev_current_delta_tv.tv_sec*1e6 + g_runtime_state.prev_current_delta_tv.tv_usec);
+                // This should only happen in a final frame case -- to avoid early switching (and some nasty resulting
+                // artifacts) we only force frame rotation if the next frame is really late.
+                if (has_next_frame && frame_progress_us > last_frame_time_us*2) {
+                    // If we have more data, rotate it in.
+                    printf("Need data: rotating in; frame_progress_us=%llu; last_frame_time_us=%llu\n", frame_progress_us, last_frame_time_us);
+                    rotate_frames(TRUE);
+                } else {
+                    // Otherwise sleep for a moment and wait for more data
+                    printf("Need data: none available; frame_progress_us=%llu; last_frame_time_us=%llu\n", frame_progress_us, last_frame_time_us);
+                    usleep(1e3);
+                }
 
-		// Check for current frame exhaustion
-		if (frame_progress_us > last_frame_time_us) {
-			uint8_t has_next_frame = g_runtime_state.has_next_frame;
-			pthread_mutex_unlock(&g_runtime_state.mutex);
+                continue;
+            }
 
-			// This should only happen in a final frame case -- to avoid early switching (and some nasty resulting
-			// artifacts) we only force frame rotation if the next frame is really late.
-			if (has_next_frame && frame_progress_us > last_frame_time_us*2) {
-				// If we have more data, rotate it in.
-				//printf("Need data: rotating in; frame_progress_us=%llu; last_frame_time_us=%llu\n", frame_progress_us, last_frame_time_us);
-				rotate_frames(TRUE);
-			} else {
-				// Otherwise sleep for a moment and wait for more data
-				//printf("Need data: none available; frame_progress_us=%llu; last_frame_time_us=%llu\n", frame_progress_us, last_frame_time_us);
-				usleep(1e3);
-			}
+            frame_progress16 = (uint16_t) ((frame_progress_us << 16) / last_frame_time_us);
+            inv_frame_progress16 = (uint16_t) (0xFFFF - frame_progress16);
 
-			continue;
-		}
-
-		frame_progress16 = (uint16_t) ((frame_progress_us << 16) / last_frame_time_us);
-		inv_frame_progress16 = (uint16_t) (0xFFFF - frame_progress16);
-
-		if (frame_progress_tv.tv_sec > 5) {
-			printf("[render] No data for 5 seconds; suspending render thread.\n");
-			pthread_mutex_unlock(&g_runtime_state.mutex);
-			usleep(100e3 /* 100ms */);
-			continue;
-		}
+            if (frame_progress_tv.tv_sec > 5) {
+                printf("[render] No data for 5 seconds; suspending render thread.\n");
+                pthread_mutex_unlock(&g_runtime_state.mutex);
+                usleep(100e3 /* 100ms */);
+                continue;
+            }
+            
+        }   
 
 		// printf("%d of %d (%d)\n",
 		// 	(frame_progress_tv.tv_sec*1000000 + frame_progress_tv.tv_usec) ,
@@ -1417,7 +1443,7 @@ void* render_thread(void* unused_data)
 
 		// Only enable dithering if we're better than 100fps
 		bool dithering_enabled = (frame_duration_avg_usec < 10000) && g_server_config.dithering_enabled;
-		bool interpolation_enabled = g_server_config.interpolation_enabled;
+		
 		bool lut_enabled = g_server_config.lut_enabled;
 
 		color_channel_order_t color_channel_order = g_server_config.color_channel_order;
@@ -1519,8 +1545,9 @@ void* render_thread(void* unused_data)
 			}
 		}
 
-		// Render the frame
+        // Wait for previous send to complete if still in progress
 		ledscape_wait(g_runtime_state.leds);
+		// Send the frame to the PRU
 		ledscape_draw(g_runtime_state.leds, buffer_index);
 
 		pthread_mutex_unlock(&g_runtime_state.mutex);
