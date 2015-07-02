@@ -205,7 +205,7 @@ The demo mode is set using the `demoMode` parameter and can have the following v
 | demoMode | behavior
 |----------|----------|
 |none      |No demo running. Pixels will only update in response to incoming OPC packets|
-|identify  | Set the pixel to the strip index unless the pixel has the same index as the strip, then light it up grey with bit value: 1010 1010|
+|id        | Set the pixel to the strip index unless the pixel has the same index as the strip, then light it up grey with bit value: 1010 1010|
 |fade      | Display a pleasing pattern of rotating color hues with a border that steps across the pixels every 12 seconds |
 |black     | All pixels off|
 |power     | All pixels on full white (based on current settings)- good for testing for maximum power requirements for current settings |
