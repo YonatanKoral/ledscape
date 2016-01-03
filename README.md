@@ -196,6 +196,23 @@ These options can be configured by command-line switches that are documented in 
 
 To disable all signal enhancements, use `opc-server -lut`
 
+Demo Modes
+--------------
+`opc-server` supports several demo modes that will drive the attached pixels autonomously. This can help greatly with testing.
+
+The demo mode is set using the `demoMode` parameter and can have the following values...
+
+| demoMode | behavior
+|----------|----------|
+|none      |No demo running. Pixels will only update in response to incoming OPC packets|
+|id        | Set the pixel to the strip index unless the pixel has the same index as the strip, then light it up grey with bit value: 1010 1010|
+|fade      | Display a pleasing pattern of rotating color hues with a border that steps across the pixels every 12 seconds |
+|black     | All pixels off|
+|power     | All pixels on full white (based on current settings)- good for testing for maximum power requirements for current settings |
+
+The default `demo-mode` set in the supplied `ws281x-config.json` configuration file is `fade`.
+
+Note that recieved OPC data will override any currently running `demo-mode`.  The currently runnning `demo-mode` will resume display 5 seconds after the last OPC data is displayed. 
 
 Invocation Examples
 -------------------
