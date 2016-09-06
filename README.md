@@ -82,7 +82,12 @@ Note: Locating the am335x-boneblack.dtb file:
 Disabling HDMI
 --------------
 
+###BeagleBone Black
+
 For LEDscape to run properly you'll have to disable the HDMI "cape" on the BeagleBone Black.
+
+
+####Angstrom - RevB
 
 Mount the FAT32 partition, either through linux on the BeagleBone or
 by plugging the USB into a computer, modify 'uEnv.txt' by changing:
@@ -91,7 +96,6 @@ Using vi
 	
 	vi /boot/uboot/uEnv.txt
 
-Angstrom - RevB
     
 	capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
 
@@ -99,7 +103,16 @@ It should read something like
 
 	optargs=quiet drm.debug=7 capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
 
-Debian - RevB
+####Debian - RevB
+
+
+Mount the FAT32 partition, either through linux on the BeagleBone or
+by plugging the USB into a computer, modify 'uEnv.txt' by changing:
+
+Using vi
+	
+	vi /boot/uboot/uEnv.txt
+
 
 	##Disable HDMI
 	#cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
@@ -108,9 +121,36 @@ Change to
 	
 	##Disable HDMI
 	cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
-    
-Save and Reboot the BeagleBone Black.
 
+####Debian - RevC
+
+1. Log in as root
+2. Edit the 'uEnv.txt' by entering:  
+
+    ```
+    nano /boot/uEnv.txt
+    ```
+    
+2. Change the lines...  
+
+    ```  
+    ##BeagleBone Black: HDMI (Audio/Video) disabled:
+    #dtb=am335x-boneblack-emmc-overlay.dtb
+    ```  
+    
+    ...to...  
+  
+    ```  	
+    ##BeagleBone Black: HDMI (Audio/Video) disabled:
+    dtb=am335x-boneblack-emmc-overlay.dtb
+    ```      
+    
+3. Press `Control-X` to Save
+4. Enter `reboot` to reboot the BeagleBone Black.
+
+###BeagleBone Green
+
+The BeagleBone Green has no HDMI, so no changes are needed.
 
 Open Pixel Control Server
 =========================
