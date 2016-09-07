@@ -1,8 +1,8 @@
 Overview
 ========
 LEDscape is a library and service for controlling individually addressable LEDs from a 
-Beagle Bone Black using the onboard PRUs. It currently supports WS281x (WS2811, WS2812, WS2812b), WS2801 and initial 
-support for DMX. It is designed to be used with level-shifter capes like those produced by RGB-123.
+Beagle Bone Black or Beagle Bone Green using the onboard [PRUs](http://processors.wiki.ti.com/index.php/Programmable_Realtime_Unit_Subsystem). It currently supports WS281x 
+(WS2811, WS2812, WS2812b), WS2801 and initial support for DMX. 
 
 
 Background
@@ -15,161 +15,81 @@ This version of the library was forked from his original WS2811 work. Various im
 attempt to make an accessible and powerful LED driver based on the BBB. Many thanks to Trammell for his excellent work
 in scaffolding the BBB and PRUs for driving LEDs.
 
-
 WARNING
 =======
 
-This code works with the PRU units on the Beagle Bone and can easily cause *hard crashes*.  It is still being debugged 
+This code works with the PRU units on the Beagle Bone and could potentially cause *hard crashes*.  It is still being debugged 
 and developed. Be careful hot-plugging things into the headers -- it is possible to damage the pin drivers and cause 
 problems in the ARM, especially if there are +5V signals involved.
 
 
-Installation and Usage - Command Line
+Installation
 =====================================
-It is necessary to have access to a shell onto the Beaglebone Black using serial, ethernet, or USB connections.  
+It is necessary to have access to a shell onto the Beaglebone using serial, Ethernet, or USB connections.  
 Examples on how to do this can be found at [BeagleBoard.org](http://beagleboard.org/getting-started) or at
 [Adafruit's Learning Site](https://learn.adafruit.com/ssh-to-beaglebone-black-over-usb/ssh-on-mac-and-linux).
 
+###Start with a compatible Linux image
 
-To use LEDscape, download it to your BeagleBone Black by connecting the BBB to the internet via ethernet and cloning 
-this github repository. Before LEDscape will function, you will need to replace the device tree file, load the  
-uio\_pruss, and reboot by executing the commands listed below via the cmd line.
+To use LEDscape, you must use a version of the Linux kernel that supports the `uio_pruss` module. The Beaglebone.org Wheezy Linux images work well. 
 
-Angstrom - RevB
+####Checking existing Linux version
+
+Check which Linux version you are currently running by entering...
+
+```
+cat /proc/version
+```
+
+If you see something with `(Debian 4.x.x-xx)` (where the x's are numbers), then you should be ok with the installed image.
+
+####Installing a compatible Linux version
+
+If you have an incompatible version currently installed or just want to start with a clean install of to the most recent compatible version, you can follow the instuctions here under "Update board with latest software"...
+
+http://beagleboard.org/getting-started
+
+Make sure you pick a "Wheezy" version of the Linux kernel since the "Jessie" versions do not yet work by default. This readme was tested against the "Debian 7.11 2015-06-15 4GB SD LXDE" image. 
+
+###Installing the LEDscape software
+
+Log into a compatible Linux version as root and enter the following commands at a command line...
 
 	git clone git://github.com/Yona-Appletree/LEDscape
 	cd LEDscape
-	cp /boot/am335x-boneblack.dtb{,.preledscape_bk}
-	cp am335x-boneblack.dtb /boot/
-	modprobe uio_pruss
-	vi /boot/uboot/uEnv.txt
+	./install-software
 	reboot
+	
+This will do the following....
+
+1. Clone the LEDscape repository to your local machine in a directory called "LEDscape" under whatever directory you started in.
+2. Build the LEDscape software from the sources. This takes a couple of minutes and you will see lots of scrolling. 
+3. Copy the new flatened device tree files to your `/boot` directory. These files enable the PRU subsystem and disables the HDMI on the BeagleBone Black (BeagleBone Green does not have HDMI).  Note that the old files are backed up with the extention `preledscape_bk`.
+4. Installs the `uio_pruss` kernel module to let LEDscape talk to the PRU subsystem. 
+5. Reboots the machine.
+ 
+###Testing the install
+
+Once the machine has rebooted, log in as root, `cd` into the `LEDscape directory you created above, enter the following command to manually start the LEDscape server...
+
+```
+sudo ./run-ledscape
+```
+
+It should print some diagnostic messages and continue running until you press Control-C or logout or reboot. 
+
+By default, the server starts sending a demo pattern in the WS2812B format on the output pins. If you connect the `DI` of some strings to these pins, they should light up. 
+
+###Setting the server to run automatically as a service
+
+If you want LEDscape to automatically start every time the machine is rebooted, you can install it as a service with the following command (run from a command line inside the LEDscape directory as root)...
+
 	sudo ./install-service.sh
-
-Debian - RevC (2014-04-23)
-
-	git clone git://github.com/Yona-Appletree/LEDscape
-	cd LEDscape
-	cp /boot/uboot/dtbs/am335x-boneblack.dtb{,.preledscape_bk}
-	cp am335x-boneblack.dtb /boot/uboot/dtbs/
-	modprobe uio_pruss
-	vi /boot/uboot/uEnv.txt 
-	reboot
-
-Debian - RevC (2015-03-01)
-
-	git clone git://github.com/Yona-Appletree/LEDscape
-	cd LEDscape
-	cp /boot/dtbs/$(uname -r)/am335x-boneblack.dtb{,.preledscape_bk}	
-	cp am335x-boneblack.dtb /boot/dtbs/$(uname -r)/	
-	modprobe uio_pruss	
-	vi /boot/uEnv.txt
-	reboot
-
-After rebooting you will need to enter the LEDscape folder and compile the LEDscape code.
-
-	cd LEDscape
-	make
-	sudo ./install-service.sh
 	
-Note: Locating the am335x-boneblack.dtb file:
-* Older BBB have the file in /boot;
-* Some distros (e.g. Arch) keep these files in /boot/dtbs;
-* The Debian distribution keeps the file in /boot/uboot/dtbs (when mounted
-  over USB, the /boot/uboot directory is read-only from the BBB and you
-  need to do the file operations from the host system.	
-	
-Disabling HDMI
---------------
-
-###BeagleBone Black
-
-For LEDscape to run properly you'll have to disable the HDMI "cape" on the BeagleBone Black.
-
-
-####Angstrom - RevB
-
-Mount the FAT32 partition, either through linux on the BeagleBone or
-by plugging the USB into a computer, modify 'uEnv.txt' by changing:
-
-Using vi
-	
-	vi /boot/uboot/uEnv.txt
-
-    
-	capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
-
-It should read something like
-
-	optargs=quiet drm.debug=7 capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
-
-####Debian - RevB
-
-
-Mount the FAT32 partition, either through linux on the BeagleBone or
-by plugging the USB into a computer, modify 'uEnv.txt' by changing:
-
-Using vi
-	
-	vi /boot/uboot/uEnv.txt
-
-
-	##Disable HDMI
-	#cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
-	
-Change to
-	
-	##Disable HDMI
-	cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
-
-####Debian - RevC
-
-1. Log in as root
-2. Edit the 'uEnv.txt' by entering:  
-
-    ```
-    nano /boot/uEnv.txt
-    ```
-    
-2. Change the lines...  
-
-    ```  
-    ##BeagleBone Black: HDMI (Audio/Video) disabled:
-    #dtb=am335x-boneblack-emmc-overlay.dtb
-    ```  
-    
-    ...to...  
-  
-    ```  	
-    ##BeagleBone Black: HDMI (Audio/Video) disabled:
-    dtb=am335x-boneblack-emmc-overlay.dtb
-    ```      
-    
-3. Press `Control-X` to Save
-4. Enter `reboot` to reboot the BeagleBone Black.
-
-###BeagleBone Green
-
-The BeagleBone Green has no HDMI, so no changes are needed.
 
 Open Pixel Control Server
 =========================
 
-Setup
------
-
-Once you have LEDscape sending data to your pixels, you will probably
-want to use the `opc-server` server which accepts Open Pixel Control data
-and passes it on to LEDscape. There is an systemd service file built to run
-LEDscape from it's home directory. Simple install/uninstall scripts are provided:
-
-	sudo ./install-service.sh
-
-If you would prefer to run the receiver startup script without adding it as a service:
-
-	sudo ./run-ledscape
-
--------------
 Configuration
 	
 By default LEDscape is configured for strings of 256 WS2811 pixels, accepting OPC
@@ -181,7 +101,7 @@ Data Format
 -----------
 
 The `opc-server` server accepts data on OPC channel 0. It expects the data for
-each LED strip concatonated together. This is done because LEDscape requires
+each LED strip concatenated together. This is done because LEDscape requires
 that data for all strips be present at once before flushing data data out to
 the LEDs. 
 
@@ -286,15 +206,12 @@ ip address after starting `opc-server` or installing the system service.
 Hardware Tips
 ========
 
-Connecting the LEDs to the correct pins and level-shifting the voltages
-to 5v can be quite complex when using many output ports of the BBB. 
+Remember that the BBB outputs data at 3.3v. Depending on the sepcific LED strips, it is often possible to connect the `DI` on directly to one of the output pins on the BeagleBone, especially if the strips are high quality and the connecting wire is short. Many [recommend](https://forum.pjrc.com/threads/24648-Newbie-findings-re-WS281X-signal-quality(wire-length-resistors-and-grounds-Oh-my!) also adding an impeadnce  matching resitior to smooth out the signal. 
+
+If your strips requre 5V on `DI`, you will need to use a level-shifter of some sort. [Adafruit](http://www.adafruit.com/products/757) has a decent one which works well.  For custom circuit boards we recommend the [TI SN74LV245](http://octopart.com/partsearch#!?q=SN74LV245).
 
 While there may be others, RGB123 makes an excellent 24/48 pin cape designed 
 specifically for this version of LEDscape: [24 pin](http://rgb-123.com/product/beaglebone-black-24-output-cape/) or [48 pin](http://rgb-123.com/product/beaglebone-black-48-output-cape/)
-
-If you do not use a cape, refer to the pin mapping section below and remember
-that the BBB outputs data at 3.3v. If you run your LEDs at 5v (which most are),
-you will need to use a level-shifter of some sort. [Adafruit](http://www.adafruit.com/products/757) has a decent one which works well.  For custom circuit boards we recommend the [TI SN74LV245](http://octopart.com/partsearch#!?q=SN74LV245).
 
 
 API
