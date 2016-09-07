@@ -41,6 +41,7 @@ Angstrom - RevB
 	cd LEDscape
 	cp /boot/am335x-boneblack.dtb{,.preledscape_bk}
 	cp am335x-boneblack.dtb /boot/
+	cp am335x-bonegreen.dtb /boot/
 	modprobe uio_pruss
 	vi /boot/uboot/uEnv.txt
 	reboot
@@ -52,6 +53,7 @@ Debian - RevC (2014-04-23)
 	cd LEDscape
 	cp /boot/uboot/dtbs/am335x-boneblack.dtb{,.preledscape_bk}
 	cp am335x-boneblack.dtb /boot/uboot/dtbs/
+	cp am335x-bonegreen.dtb /boot/uboot/dtbs/
 	modprobe uio_pruss
 	vi /boot/uboot/uEnv.txt 
 	reboot
@@ -62,6 +64,7 @@ Debian - RevC (2015-03-01)
 	cd LEDscape
 	cp /boot/dtbs/$(uname -r)/am335x-boneblack.dtb{,.preledscape_bk}	
 	cp am335x-boneblack.dtb /boot/dtbs/$(uname -r)/	
+	cp am335x-green.dtb /boot/dtbs/$(uname -r)/	
 	modprobe uio_pruss	
 	vi /boot/uEnv.txt
 	reboot
