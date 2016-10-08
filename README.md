@@ -56,13 +56,15 @@ Make sure you pick a "Wheezy" version of the Linux kernel since the "Jessie" ver
 Log into a compatible Linux version as root and enter the following commands at a command line...
 
 	git clone git://github.com/Yona-Appletree/LEDscape
-	cd LEDscape
-	./install-software
+	cd ledscape
+	chmod +x install-software.sh
+	./install-software.sh
 	reboot
 	
 This will do the following....
 
 1. Clone the LEDscape repository to your local machine in a directory called "LEDscape" under whatever directory you started in.
+3. Make the install script executable.
 2. Build the LEDscape software from the sources. This takes a couple of minutes and you will see lots of scrolling. 
 3. Copy the new flatened device tree files to your `/boot` directory. These files enable the PRU subsystem and disables the HDMI on the BeagleBone Black (BeagleBone Green does not have HDMI).  Note that the old files are backed up with the extention `preledscape_bk`.
 4. Installs the `uio_pruss` kernel module to let LEDscape talk to the PRU subsystem. 
