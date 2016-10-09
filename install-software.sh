@@ -27,6 +27,18 @@ echo "Copying new device tree files..."
 cp devicetree/am335x-boneblack.dtb /boot/dtbs/$(uname -r)/ 
 cp devicetree/am335x-bonegreen.dtb /boot/dtbs/$(uname -r)/ 
 
+echo Copying config file to /etc
+
+if [[ -f "//etc/ledscape-config.json" ]]; then
+
+	echo Leaving existing /etc/ledscape-config.json intact. 
+	
+else
+
+	cp configs/default-config.json /etc/ledscape-config.json
+	
+fi
+
 echo "Enabling kernel module..."	
 modprobe uio_pruss  
 
