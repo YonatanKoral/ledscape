@@ -18,3 +18,4 @@ Use the command below to create and execute the JSON configuration
 With this JSON configured it can be called again by issuing the command
 
 	./opc-server --config ws281x-config.json
+
