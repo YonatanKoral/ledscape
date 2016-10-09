@@ -4,6 +4,7 @@ LEDscape is a library and service for controlling individually addressable LEDs 
 Beagle Bone Black or Beagle Bone Green using the onboard [PRUs](http://processors.wiki.ti.com/index.php/Programmable_Realtime_Unit_Subsystem). It currently supports WS281x 
 (WS2811, WS2812, WS2812b), WS2801 and initial support for DMX. 
 
+It can support up to 48 connected strings and can drive them with very little load on the main processor. 
 
 Background
 ------
@@ -14,13 +15,6 @@ has been repurposed to drive a different type of LED panel (e.g. http://www.adaf
 This version of the library was forked from his original WS2811 work. Various improvements have been made in the 
 attempt to make an accessible and powerful LED driver based on the BBB. Many thanks to Trammell for his excellent work
 in scaffolding the BBB and PRUs for driving LEDs.
-
-WARNING
-=======
-
-This code works with the PRU units on the Beagle Bone and could potentially cause *hard crashes*.  It is still being debugged 
-and developed. Be careful hot-plugging things into the headers -- it is possible to damage the pin drivers and cause 
-problems in the ARM, especially if there are +5V signals involved.
 
 
 Installation
@@ -72,10 +66,11 @@ This will do the following....
  
 ###Testing the install
 
-Once the machine has rebooted, log in as root, `cd` into the `LEDscape directory you created above, enter the following command to manually start the LEDscape server...
+Once the machine has rebooted, log in as root, enter the following commands to switch into the `LEDscape` directory you created above and manually start the LEDscape server...
 
 ```
-sudo ./run-ledscape
+cd LEDscape
+./run-ledscape
 ```
 
 It should print some diagnostic messages and continue running until you press Control-C or logout or reboot. 
