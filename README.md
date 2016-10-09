@@ -56,7 +56,7 @@ Make sure you pick a "Wheezy" version of the Linux kernel since the "Jessie" ver
 Log into a compatible Linux version as root and enter the following commands at a command line...
 
 	git clone git://github.com/Yona-Appletree/LEDscape
-	cd ledscape
+	cd LEDscape
 	chmod +x install-software.sh
 	./install-software.sh
 	reboot
