@@ -39,7 +39,7 @@ If you see something with `(Debian 4.x.x-xx)` (where the x's are numbers), then 
 
 ####Installing a compatible Linux version
 
-If you have an incompatible version currently installed or just want to start with a clean install of to the most recent compatible version, you can follow the instuctions here under "Update board with latest software"...
+If you have an incompatible version currently installed or just want to start with a clean install of to the most recent compatible version, you can follow the instructions here under "Update board with latest software"...
 
 http://beagleboard.org/getting-started
 
@@ -60,7 +60,7 @@ This will do the following....
 1. Clone the LEDscape repository to your local machine in a directory called "LEDscape" under whatever directory you started in.
 3. Make the install script executable.
 2. Build the LEDscape software from the sources. This takes a couple of minutes and you will see lots of scrolling. 
-3. Copy the new flatened device tree files to your `/boot` directory. These files enable the PRU subsystem and disables the HDMI on the BeagleBone Black (BeagleBone Green does not have HDMI).  Note that the old files are backed up with the extention `preledscape_bk`.
+3. Copy the new flatened device tree files to your `/boot` directory. These files enable the PRU subsystem and disables the HDMI on the BeagleBone Black (BeagleBone Green does not have HDMI).  Note that the old files are backed up with the extension `preledscape_bk`.
 4. Installs the `uio_pruss` kernel module to let LEDscape talk to the PRU subsystem. 
 5. Reboots the machine.
  
@@ -86,15 +86,14 @@ If you want LEDscape to automatically start every time the machine is rebooted, 
 Open Pixel Control Server
 =========================
 
-Configuration
+##Configuration
 	
 By default LEDscape is configured for strings of 256 WS2811 pixels, accepting OPC
 data on port 7890. You can adjust this by editing `run-ledscape` and 
 editing the parameters to `opc-server`
 
 
-Data Format
------------
+##Data Format
 
 The `opc-server` server accepts data on OPC channel 0. It expects the data for
 each LED strip concatenated together. This is done because LEDscape requires
@@ -107,8 +106,8 @@ with `--udp-port <port>`. Entering `0` for a port number will disable that serve
 Note that if using the UDP server, `opc-server` will limit the number of pixels to 21835, or 454 pixels per port if
 using all 48 ports.
 
-Output Modes
-------------
+##Output Modes
+
 LEDscape is capable of outputting several types of signal. By default, a ws2811-compatible signal is generated. The
 output mode can be specified with the `--mode <mode-id>` parameter. A list of available modes and their descriptions
 can be obtained by running `opc-server -h`. 
@@ -178,7 +177,7 @@ Find the lines that say...
 dtb=am335x-boneblack-emmc-overlay.dtb
 ```
 
-(delete the `#` at the begining of the second line).
+(delete the `#` at the beginning of the second line).
 
 Then save the file by pressing `Control-X` and answering `y`, and then reboot by entering `reboot`.
 
@@ -220,7 +219,7 @@ The demo mode is set using the `demoMode` parameter and can have the following v
 
 The default `demo-mode` set in the supplied `ws281x-config.json` configuration file is `fade`.
 
-Note that recieved OPC data will override any currently running `demo-mode`.  The currently runnning `demo-mode` will resume display 5 seconds after the last OPC data is displayed. 
+Note that received OPC data will override any currently running `demo-mode`.  The currently running `demo-mode` will resume display 5 seconds after the last OPC data is displayed. 
 
 Invocation Examples
 -------------------
@@ -254,9 +253,9 @@ ip address after starting `opc-server` or installing the system service.
 Hardware Tips
 ========
 
-Remember that the BBB outputs data at 3.3v. Depending on the sepcific LED strips, it is often possible to connect the `DI` on directly to one of the output pins on the BeagleBone, especially if the strips are high quality and the connecting wire is short. Many [recommend](https://forum.pjrc.com/threads/24648-Newbie-findings-re-WS281X-signal-quality(wire-length-resistors-and-grounds-Oh-my!) also adding an impeadnce  matching resitior to smooth out the signal. 
+Remember that the BBB outputs data at 3.3v. Depending on the specific LED strips, it is often possible to connect the `DI` on directly to one of the output pins on the BeagleBone, especially if the strips are high quality and the connecting wire is short. Many [recommend](https://forum.pjrc.com/threads/24648-Newbie-findings-re-WS281X-signal-quality(wire-length-resistors-and-grounds-Oh-my!) also adding an impedance  matching resistor to smooth out the signal. 
 
-If your strips requre 5V on `DI`, you will need to use a level-shifter of some sort. [Adafruit](http://www.adafruit.com/products/757) has a decent one which works well.  For custom circuit boards we recommend the [TI SN74LV245](http://octopart.com/partsearch#!?q=SN74LV245).
+If your strips require 5V on `DI`, you will need to use a level-shifter of some sort. [Adafruit](http://www.adafruit.com/products/757) has a decent one which works well.  For custom circuit boards we recommend the [TI SN74LV245](http://octopart.com/partsearch#!?q=SN74LV245).
 
 While there may be others, RGB123 makes an excellent 24/48 pin cape designed 
 specifically for this version of LEDscape: [24 pin](http://rgb-123.com/product/beaglebone-black-24-output-cape/) or [48 pin](http://rgb-123.com/product/beaglebone-black-48-output-cape/)
