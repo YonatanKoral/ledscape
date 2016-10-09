@@ -60,9 +60,18 @@ This will do the following....
 1. Clone the LEDscape repository to your local machine in a directory called "LEDscape" under whatever directory you started in.
 3. Make the install script executable.
 2. Build the LEDscape software from the sources. This takes a couple of minutes and you will see lots of scrolling. 
-3. Copy the new flatened device tree files to your `/boot` directory. These files enable the PRU subsystem and disables the HDMI on the BeagleBone Black (BeagleBone Green does not have HDMI).  Note that the old files are backed up with the extension `preledscape_bk`.
-4. Installs the `uio_pruss` kernel module to let LEDscape talk to the PRU subsystem. 
+3. Copy the new flattened device tree files to your `/boot` directory. These files enable the PRU subsystem and disables the HDMI on the BeagleBone Black (BeagleBone Green does not have HDMI).  Note that the old files are backed up with the extension `preledscape_bk`.
+4. Copy a default config file to `/etc/ledscape-config.json` if that file does not already exist. 
+4. Install the `uio_pruss` kernel module to let LEDscape talk to the PRU subsystem. 
 5. Reboots the machine.
+
+###Updating an existing install
+
+If you are using an older version of LEDscape that keeps the configuration in a JSON file inside the LEDscape directory, you should copy your modified config to `/etc/ledscape-config.json`.  
+
+You should be able to update an existing install with the above procedure without overwriting your configuration in `/etc/ledscape-config.json`. 
+
+Note that the install process will not preserve any modified pin mappings.
  
 ###Testing the install
 
@@ -221,28 +230,18 @@ The default `demo-mode` set in the supplied `ws281x-config.json` configuration f
 
 Note that received OPC data will override any currently running `demo-mode`.  The currently running `demo-mode` will resume display 5 seconds after the last OPC data is displayed. 
 
-Invocation Examples
--------------------
+Configuration
+====
 
-| Configuration                 | `opc-server` Invocation
-| ----------------------------- | -------------
-| 32 strips, 64 pixels, ws2811  | ./opc-server --strip-count 32 --count 64 --mode ws281x 
-| 24 strips, 512 pixels, ws2801 | ./opc-server --strip-count 24 --count 512 --mode ws2801
-| 8 outputs, 170 pixels, dmx    | ./opc-server --strip-count 8 --count 170 --mode dmx
+Config info is typically stored in `/etc/ledscape-config.json`.
+
+The default config after installation is set up to drive WS281X strips connected to all of the 48 available output pins. Note that not all pins will work on BeagleBone Black unless you [disable the HDMI port](#HDMI Conflict).  
+
+A description of the file format and some example configurations are available in the [`configs/` subdirectory](/configs) of this repo. 
 
 
-JSON Configuration
-------------------
 
-Use the command below to create and execute the JSON configuration
-
-	./opc-server --config ws281x-config.json --mapping rgb-123-v2 --mode ws281x --count 64 --strip-count 48
-
-With this JSON configured it can be called again by issuing the command
-
-	./opc-server --config ws281x-config.json
-
-Processing Example
+Processing Examples
 ========
 
 LEDscape provides versions of the FadeCandy processing examples modified to work better with LEDscape in the
