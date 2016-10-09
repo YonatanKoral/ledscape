@@ -235,10 +235,25 @@ Configuration
 
 Config info is typically stored in `/etc/ledscape-config.json`.
 
+##Default config
+
 The default config after installation is set up to drive WS281X strips connected to all of the 48 available output pins. Note that not all pins will work on BeagleBone Black unless you [disable the HDMI port](#HDMI Conflict).  
 
 A description of the file format and some example configurations are available in the [`configs/` subdirectory](/configs) of this repo. 
 
+##Directly editing the current config
+
+You can edit the config file directly by typing...
+
+```
+nano /etc/ledscape-config.json
+```
+
+If the server is already running as a service, you'll need to enter the following command to get it to read the new config file...
+
+```
+sudo systemctl restart ledscape.service
+```
 
 
 Processing Examples
