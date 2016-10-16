@@ -40,8 +40,9 @@ CFLAGS += \
 	-march=armv7-a \
 	-Wunused-parameter \
 	-DNS_ENABLE_IPV6 \
-	-Wunknown-pragmas \
-	-Wsign-compare
+	-Wsign-compare \
+	-Werror \
+	-Wno-unknown-pragmas
 
 LDFLAGS += \
 
