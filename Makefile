@@ -34,7 +34,7 @@ CFLAGS += \
 	-Wp,-MMD,$(dir $@).$(notdir $@).d \
 	-Wp,-MT,$@ \
 	-I. \
-	-O2 \
+	-O2  -g \
 	-lm \
 	-mtune=cortex-a8 \
 	-march=armv7-a \
