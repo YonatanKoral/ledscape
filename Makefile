@@ -150,5 +150,9 @@ $(APP_LOADER_LIB):
 $(PASM):
 	$(MAKE) -C $(PASM_DIR)
 
+.PHONY: cscope
+cscope:
+	find . -name '*.[cCh]' -o -name '*.cc' >cscope.files
+	cscope -k -buq -p4 -v
 # Include all of the generated dependency files
 -include .*.o.d
