@@ -60,10 +60,10 @@ This will do the following....
 1. Clone the LEDscape repository to your local machine in a directory called "LEDscape" under whatever directory you started in.
 3. Make the install script executable.
 2. Build the LEDscape software from the sources. This takes a couple of minutes and you will see lots of scrolling. 
-3. Copy the new flattened device tree files to your `/boot` directory. These files enable the PRU subsystem and disables the HDMI on the BeagleBone Black (BeagleBone Green does not have HDMI).  Note that the old files are backed up with the extension `preledscape_bk`.
+3. Copy the new flattened device tree files to your `/boot` directory. These files enable the PRU subsystem.  Note that the old files are backed up with the extension `preledscape_bk`.
 4. Copy a default config file to `/etc/ledscape-config.json` if that file does not already exist. 
 4. Install the `uio_pruss` kernel module to let LEDscape talk to the PRU subsystem. 
-5. Reboots the machine.
+5. Reboot the machine.
 
 ###Updating an existing install
 
