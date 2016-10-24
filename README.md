@@ -29,13 +29,13 @@ To use LEDscape, you must use a version of the Linux kernel that supports the `u
 
 ####Checking existing Linux version
 
-Check which Linux version you are currently running by entering...
+Check which Debian version you are currently running by entering...
 
 ```
-cat /proc/version
+cat /etc/debian_version
 ```
 
-If you see something with `(Debian 4.x.x-xx)` (where the x's are numbers), then you should be ok with the installed image.
+This `README` was tested with version `7.11`, but any 7.x version should work. Version 8.x is currently not compatible because it does not support the PRUSS subsystem that LEDScape used to talk to the PRU units. 
 
 ####Installing a compatible Linux version
 
