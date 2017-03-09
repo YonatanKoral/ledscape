@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-cd $(dirname $0)
-
 if [[ -f ledscape.service ]]; then
 	echo "Enabling Service..."
 	systemctl enable $(pwd)/ledscape.service || exit -1
